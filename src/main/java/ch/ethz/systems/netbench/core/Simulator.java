@@ -6,6 +6,8 @@ import ch.ethz.systems.netbench.core.network.Event;
 import ch.ethz.systems.netbench.core.network.TransportLayer;
 import ch.ethz.systems.netbench.core.random.RandomManager;
 
+import ch.ethz.systems.netbench.core.run.traffic.BackLoggedFlowStartEvent;
+
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Random;
@@ -25,6 +27,9 @@ public class Simulator {
 
     // Main ordered event queue (run variable)
     private static PriorityQueue<Event> eventQueue = new PriorityQueue<>();
+
+    // Auxiliary ordered event queue (run variable) for automatic sequenced traffic planner
+    private static PriorityQueue<Event> sequenceEventQueue = new PriorityQueue<>();
 
     // Current time in ns in the simulation (run variable)
     private static long now;
@@ -156,8 +161,8 @@ public class Simulator {
 
         // Finish flow threshold, if it is negative the flow finish will be very far in the future
         finishFlowIdThreshold = flowsFromStartToFinish;
-        if (flowsFromStartToFinish <= 0) {
-            flowsFromStartToFinish = Long.MAX_VALUE;
+        if (finishFlowIdThreshold <= 0) {
+            finishFlowIdThreshold = Long.MAX_VALUE;
         }
 
         // Log start
@@ -168,36 +173,56 @@ public class Simulator {
         long realTime = System.currentTimeMillis();
         long nextProgressLog = PROGRESS_SHOW_INTERVAL_NS;
         boolean endedDueToFlowThreshold = false;
-        while (!eventQueue.isEmpty() && now <= runtimeNanoseconds) {
+        while ( (!eventQueue.isEmpty() || !sequenceEventQueue.isEmpty()) && now <= runtimeNanoseconds) {
 
             // Go to next event
-            Event event = eventQueue.peek();
-            now = event.getTime();
-            if (now <= runtimeNanoseconds) {
-                event.trigger();
-                eventQueue.poll();
-            }
+            if (!eventQueue.isEmpty()) {
+                Event event = eventQueue.peek();
+                now = event.getTime();
+                if (now <= runtimeNanoseconds) {
+                    eventQueue.poll();
+                    event.trigger();
+                }
 
-            // Log elapsed time
-            if (now > nextProgressLog) {
-                nextProgressLog += PROGRESS_SHOW_INTERVAL_NS;
-                long realTimeNow = System.currentTimeMillis();
-                System.out.println("Elapsed 0.01s simulation in " + ((realTimeNow - realTime) / 1000.0) + "s real (total progress: " + ((((double) now) / ((double) runtimeNanoseconds)) * 100) + "%).");
-                realTime = realTimeNow;
-            }
+                // Log elapsed time
+                if (now > nextProgressLog) {
+                    nextProgressLog += PROGRESS_SHOW_INTERVAL_NS;
+                    long realTimeNow = System.currentTimeMillis();
+                    System.out.println("Elapsed 0.01s simulation in " + ((realTimeNow - realTime) / 1000.0) + "s real (total progress: " + ((((double) now) / ((double) runtimeNanoseconds)) * 100) + "%).");
+                    realTime = realTimeNow;
+                }
 
-            if (finishedFlows.size() >= flowsFromStartToFinish) {
-                endedDueToFlowThreshold = true;
-                break;
+                if (finishedFlows.size() >= finishFlowIdThreshold) {
+                    endedDueToFlowThreshold = true;
+                    break;
+                }
+            } else {
+                // Add the backlogged events from the sequence queue
+                if (!sequenceEventQueue.isEmpty()) {
+                    BackLoggedFlowStartEvent trafficEvent = (BackLoggedFlowStartEvent) sequenceEventQueue.peek();
+                    long currentBatchPriority = trafficEvent.flowSequencePriority;
+                    while (!sequenceEventQueue.isEmpty() &&
+                        ((BackLoggedFlowStartEvent) sequenceEventQueue.peek()).flowSequencePriority == currentBatchPriority) {
+                        Event nextEvent = sequenceEventQueue.poll();
+                        nextEvent.trigger();
+                        // eventQueue.add(nextEvent);
+                    }
+                }
             }
+            
 
         }
 
         // Make sure run ends at the final time if it ended because there were no
         // more events or the runtime was exceeded
-        if (!endedDueToFlowThreshold) {
+        if (endedDueToFlowThreshold) {
+            System.out.println("Simulation ended because flows have all completed their runs.");
+            // now = runtimeNanoseconds;
+        } else {
             now = runtimeNanoseconds;
         }
+
+        // now = runtimeNanoseconds;    // Now must be the minimum on now or runtime nanoseconds.
 
         // Log end
         System.out.println("Simulation finished (simulated " + (runtimeNanoseconds / 1e9) + "s in a real-world time of " + ((System.currentTimeMillis() - startTime) / 1000.0) + "s).");
@@ -216,12 +241,30 @@ public class Simulator {
     }
 
     /**
+     * Determines whether if all flows have completed.
+     *
+     * @return True if all flows have finished, false otherwise.
+     */
+    public static boolean allFlowsFinished() {
+        return finishedFlows.size() >= finishFlowIdThreshold;
+    }
+
+    /**
      * Register an event in the simulation.
      *
      * @param event     Event instance
      */
     public static void registerEvent(Event event) {
         eventQueue.add(event);
+    }
+
+    /**
+     * Register an event in the simulation.
+     *
+     * @param event     Event instance
+     */
+    public static void registerEventSequence(Event event) {
+        sequenceEventQueue.add(event);
     }
 
     /**
@@ -234,6 +277,13 @@ public class Simulator {
      */
     public static long getTimeFromNow(long nanoseconds) {
         return now + nanoseconds;
+    }
+
+    public static long getNextEventTime() {
+        if (eventQueue.isEmpty()) {
+            return -1;
+        }
+        return eventQueue.peek().getTime();
     }
 
     /**
@@ -281,6 +331,7 @@ public class Simulator {
         // Reset any run variables
         now = 0;
         eventQueue.clear();
+        sequenceEventQueue.clear();
         finishedFlows.clear();
         TransportLayer.staticReset();
         finishFlowIdThreshold = -1;

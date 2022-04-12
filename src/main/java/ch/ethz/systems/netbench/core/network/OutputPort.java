@@ -17,9 +17,9 @@ import java.util.Queue;
 public abstract class OutputPort {
 
     // Internal state
-    private boolean isSending;          // True iff the output port is using the medium to send a packet
-    private final Queue<Packet> queue;  // Current queue of packets to send
-    private long bufferOccupiedBits;    // Amount of bits currently occupied of the buffer
+    protected boolean isSending;          // True iff the output port is using the medium to send a packet
+    protected final Queue<Packet> queue;  // Current queue of packets to send
+    protected long bufferOccupiedBits;    // Amount of bits currently occupied of the buffer
 
     // Constants
     private final int ownId;                            // Own network device identifier
@@ -30,7 +30,7 @@ public abstract class OutputPort {
                                                         // that the output port uses
 
     // Logging utility
-    private final PortLogger logger;
+    protected final PortLogger logger;
 
     /**
      * Constructor.
@@ -77,14 +77,14 @@ public abstract class OutputPort {
 
         // If it is not sending, then the queue is empty at the moment,
         // so this packet can be immediately send
-        if (!isSending) {
 
+        if (!isSending) {
             // Link is now being utilized
             logger.logLinkUtilized(true);
 
             // Add event when sending is finished
             Simulator.registerEvent(new PacketDispatchedEvent(
-                    packet.getSizeBit() / link.getBandwidthBitPerNs(),
+                    (long) (packet.getSizeBit() / link.getBandwidthBitPerNs()),
                     packet,
                     this
             ));
@@ -107,8 +107,7 @@ public abstract class OutputPort {
      *
      * @param packet    Packet instance that was being sent
      */
-    void dispatch(Packet packet) {
-
+    public void dispatch(Packet packet) {
         // Finished sending packet, the last bit of the packet should arrive the link-delay later
         if (!link.doesNextTransmissionFail(packet.getSizeBit())) {
             Simulator.registerEvent(
@@ -133,7 +132,7 @@ public abstract class OutputPort {
 
             // Register when the packet is actually dispatched
             Simulator.registerEvent(new PacketDispatchedEvent(
-                    packetFromQueue.getSizeBit() / link.getBandwidthBitPerNs(),
+                    (long) (packetFromQueue.getSizeBit() / link.getBandwidthBitPerNs()),
                     packetFromQueue,
                     this
             ));
@@ -183,7 +182,7 @@ public abstract class OutputPort {
      * @return  Target network device
      */
     public NetworkDevice getTargetDevice(){
-    		return targetNetworkDevice;
+    	return targetNetworkDevice;
     }
 
     /**
@@ -200,7 +199,7 @@ public abstract class OutputPort {
      *
      * @return  Bits currently occupied in the buffer of this output port.
      */
-    protected long getBufferOccupiedBits() {
+    public long getBufferOccupiedBits() {
         return bufferOccupiedBits;
     }
 

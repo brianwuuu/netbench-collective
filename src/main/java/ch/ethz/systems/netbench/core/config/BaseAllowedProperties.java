@@ -53,8 +53,11 @@ public class BaseAllowedProperties {
             // Basic
             "output_port_max_queue_size_bytes",
             "output_port_ecn_threshold_k_bytes",
+            "injection_queue_multiplier",
             "link_delay_ns",
             "link_bandwidth_bit_per_ns",
+            "injection_link_bandwidth_bit_per_ns",
+            "link_delay_filename",
 
             // Poisson traffic
             "traffic_pair_type",
@@ -77,7 +80,12 @@ public class BaseAllowedProperties {
             "traffic_probabilities_fraction_A",
             "traffic_probabilities_mass_A",
 
+            // jason's wcmp module
+            "wcmp_path_weights_filename",
 
+            // for bandwidth steering during simulations
+            "reconfiguration_events_filename",
+            "pod_id_filename",
     };
 
     public static final String[] EXPERIMENTAL = new String[]{
@@ -94,6 +102,7 @@ public class BaseAllowedProperties {
             "DCTCP_WEIGHT_NEW_ESTIMATION",
             "enable_log_congestion_window",
             "enable_log_packet_burst_gap",
+            "enable_smooth_rtt",
 
             // K-shortest-paths
             "k_for_k_shortest_paths",
@@ -106,8 +115,32 @@ public class BaseAllowedProperties {
 
 
             "spark_error_distribution",
-            "routing_ecmp_then_source_routing_switch_threshold_bytes"
+            "routing_ecmp_then_source_routing_switch_threshold_bytes",
 
+            // jason's traffic aware source routing
+            "routing_weight_filename",
+            "switch_to_block_filename",
+
+            // for bandwidth steering
+            "reconfiguration_type",
+            "reconfiguration_period_ns",
+            "link_reconfig_latency_ns",
+            "server_link_delay_ns",
+            "traffic_arrivals_filename",
+            "num_reconfigurable_uplinks",
+
+            // for infiniband
+            "infiniband_input_queue_size_bytes",
+            "infiniband_check_delivery_order",
+            "stateful_load_balancing",
+            "enable_packet_spraying",
+            "num_vcs",
+
+            // for infiniband with valiant-ecmp hybrid routing
+            "ecmp_fraction",
+
+            // For checking link bidirectionality 
+            "check_link_bidirectionality",
     };
 
 }

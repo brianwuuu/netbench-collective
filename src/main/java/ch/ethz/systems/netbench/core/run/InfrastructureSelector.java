@@ -10,6 +10,8 @@ import ch.ethz.systems.netbench.core.run.infrastructure.TransportLayerGenerator;
 import ch.ethz.systems.netbench.ext.bare.BareTransportLayerGenerator;
 import ch.ethz.systems.netbench.ext.basic.EcnTailDropOutputPortGenerator;
 import ch.ethz.systems.netbench.ext.basic.PerfectSimpleLinkGenerator;
+import ch.ethz.systems.netbench.ext.basic.PerfectSimpleLinkDifferentInjectionBandwidthGenerator;
+import ch.ethz.systems.netbench.ext.basic.PerfectSimpleLinkDifferentDelayBandwidthGenerator;
 import ch.ethz.systems.netbench.ext.demo.DemoIntermediaryGenerator;
 import ch.ethz.systems.netbench.ext.demo.DemoTransportLayerGenerator;
 import ch.ethz.systems.netbench.ext.ecmp.EcmpSwitchGenerator;
@@ -139,7 +141,21 @@ class InfrastructureSelector {
             case "perfect_simple":
                 return new PerfectSimpleLinkGenerator(
                         Simulator.getConfiguration().getLongPropertyOrFail("link_delay_ns"),
-                        Simulator.getConfiguration().getLongPropertyOrFail("link_bandwidth_bit_per_ns")
+                        Simulator.getConfiguration().getDoublePropertyOrFail("link_bandwidth_bit_per_ns")
+                );
+
+            case "perfect_simple_different_injection_bandwidth":
+                return new PerfectSimpleLinkDifferentInjectionBandwidthGenerator(
+                        Simulator.getConfiguration().getLongPropertyOrFail("link_delay_ns"),
+                        Simulator.getConfiguration().getDoublePropertyOrFail("link_bandwidth_bit_per_ns"),
+                        Simulator.getConfiguration().getLongPropertyOrFail("injection_link_bandwidth_bit_per_ns")
+                );
+            
+            case "perfect_simple_different_delay_bandwidth":
+                return new PerfectSimpleLinkDifferentDelayBandwidthGenerator(
+                        Simulator.getConfiguration().getLongPropertyOrFail("link_delay_ns"),
+                        Simulator.getConfiguration().getDoublePropertyOrFail("link_bandwidth_bit_per_ns"),
+                        Simulator.getConfiguration().getPropertyOrFail("link_delay_filename")
                 );
 
             default:
@@ -162,7 +178,7 @@ class InfrastructureSelector {
      * @return  Output port generator
      */
     static OutputPortGenerator selectOutputPortGenerator() {
-
+        System.out.println("The name of output generator is: " + Simulator.getConfiguration().getPropertyOrFail("output_port"));
         switch (Simulator.getConfiguration().getPropertyOrFail("output_port")) {
 
             case "ecn_tail_drop":

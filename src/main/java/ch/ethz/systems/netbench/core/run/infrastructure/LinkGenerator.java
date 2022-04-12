@@ -4,5 +4,6 @@ import ch.ethz.systems.netbench.core.network.NetworkDevice;
 import ch.ethz.systems.netbench.core.network.Link;
 
 public abstract class LinkGenerator {
-    public abstract Link generate(NetworkDevice fromNetworkDevice, NetworkDevice toNetworkDevice);
+	// link multiplicity is the entry in the adjacency matrix, meaning how many times the number of base bandwidth does this link have
+    public abstract Link generate(NetworkDevice fromNetworkDevice, NetworkDevice toNetworkDevice, long link_multiplicity);
 }

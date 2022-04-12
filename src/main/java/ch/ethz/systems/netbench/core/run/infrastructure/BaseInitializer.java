@@ -79,32 +79,35 @@ public class BaseInitializer {
         // Create edges
         for (Vertex v : graph.getVertexList()) {
             for (Vertex w : graph.getAdjacentVertices(v)) {
-                createEdge(v.getId(), + w.getId());
+                long multiplicity = graph.getEdgeWeight(v, w);
+                createEdge(v.getId(), w.getId(), multiplicity);
             }
         }
 
         // Check the links for bi-directionality
-        for (int i = 0; i < linkPairs.size(); i++) {
+        Boolean checkLinkBidirectionality = Simulator.getConfiguration().getBooleanPropertyWithDefault("check_link_bidirectionality", true);
+        if (checkLinkBidirectionality) {
+            for (int i = 0; i < linkPairs.size(); i++) {
 
-            // Attempt to find the reverse
-            boolean found = false;
-            for (int j = 0; j < linkPairs.size(); j++) {
-                if (i != j && linkPairs.get(j).equals(new ImmutablePair<>(linkPairs.get(i).getRight(), linkPairs.get(i).getLeft()))) {
-                    found = true;
-                    break;
+                // Attempt to find the reverse
+                boolean found = false;
+                for (int j = 0; j < linkPairs.size(); j++) {
+                    if (i != j && linkPairs.get(j).equals(new ImmutablePair<>(linkPairs.get(i).getRight(), linkPairs.get(i).getLeft()))) {
+                        found = true;
+                        break;
+                    }
                 }
-            }
 
-            // If reverse not found, it is not bi-directional
-            if (!found) {
-                throw new IllegalArgumentException(
-                        "Link was added which is not bi-directional: " +
-                        linkPairs.get(i).getLeft() + " -> " + linkPairs.get(i).getRight()
-                );
-            }
+                // If reverse not found, it is not bi-directional
+                if (!found) {
+                    throw new IllegalArgumentException(
+                            "Link was added which is not bi-directional: " +
+                            linkPairs.get(i).getLeft() + " -> " + linkPairs.get(i).getRight()
+                    );
+                }
 
+            }
         }
-
     }
 
     /**
@@ -152,7 +155,7 @@ public class BaseInitializer {
      * @param startVertexId     Origin vertex identifier
      * @param endVertexId       Destination vertex identifier
      */
-    private void createEdge(int startVertexId, int endVertexId) {
+    private void createEdge(int startVertexId, int endVertexId, long multiplicity) {
 
         // Select network devices
         NetworkDevice devA = idToNetworkDevice.get(startVertexId);
@@ -162,7 +165,7 @@ public class BaseInitializer {
         OutputPort portAtoB = outputPortGenerator.generate(
                 devA,
                 devB,
-                linkGenerator.generate(devA, devB)
+                linkGenerator.generate(devA, devB, multiplicity)
         );
         devA.addConnection(portAtoB);
 

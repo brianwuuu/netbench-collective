@@ -4,6 +4,8 @@ import ch.ethz.systems.netbench.core.Simulator;
 import ch.ethz.systems.netbench.core.config.exceptions.PropertyValueInvalidException;
 import ch.ethz.systems.netbench.core.network.TransportLayer;
 import ch.ethz.systems.netbench.ext.poissontraffic.FromStringArrivalPlanner;
+import ch.ethz.systems.netbench.ext.poissontraffic.FromFileArrivalPlanner;
+import ch.ethz.systems.netbench.core.run.traffic.FromFileArrivalAutoPlanner;
 import ch.ethz.systems.netbench.core.run.traffic.TrafficPlanner;
 import ch.ethz.systems.netbench.ext.poissontraffic.PoissonArrivalPlanner;
 import ch.ethz.systems.netbench.ext.trafficpair.TrafficPairPlanner;
@@ -204,6 +206,12 @@ class TrafficSelector {
 
             case "traffic_arrivals_string":
                 return new FromStringArrivalPlanner(idToTransportLayer, Simulator.getConfiguration().getPropertyOrFail("traffic_arrivals_list"));
+
+            case "traffic_arrivals_file":
+                return new FromFileArrivalPlanner(idToTransportLayer, Simulator.getConfiguration().getPropertyOrFail("traffic_arrivals_filename"));
+            
+            case "traffic_arrivals_file_auto":
+                return new FromFileArrivalAutoPlanner(idToTransportLayer, Simulator.getConfiguration().getPropertyOrFail("traffic_arrivals_filename"));
 
             default:
                 throw new PropertyValueInvalidException(
