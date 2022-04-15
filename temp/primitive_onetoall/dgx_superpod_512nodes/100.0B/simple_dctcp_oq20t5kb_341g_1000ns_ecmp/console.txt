@@ -1,0 +1,28 @@
+Copying file "/Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/100.0B/simple_dctcp_oq20t5kb_341g_1000ns_ecmp/simulation_parameters.properties" to run folder...
+Running command "cp /Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/100.0B/simple_dctcp_oq20t5kb_341g_1000ns_ecmp/simulation_parameters.properties /Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/100.0B/simple_dctcp_oq20t5kb_341g_1000ns_ecmp/"...
+cp: /Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/100.0B/simple_dctcp_oq20t5kb_341g_1000ns_ecmp/simulation_parameters.properties and /Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/100.0B/simple_dctcp_oq20t5kb_341g_1000ns_ecmp/simulation_parameters.properties are identical (not copied).
+... command has been executed (any output is shown above).
+Copying file "/Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/initial_topology.topology" to run folder using new file name "original_topology.txt"...
+Running command "cp /Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/initial_topology.topology /Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/100.0B/simple_dctcp_oq20t5kb_341g_1000ns_ecmp//original_topology.txt"...
+... command has been executed (any output is shown above).
+
+INFRASTRUCTURE
+==================
+The name of output generator is: ecn_tail_drop
+Finished creating infrastructure.
+
+ROUTING STATE
+==================
+Calculating shortest path lengths... done.
+Populating ECMP forward routing tables... 10.0%... 20.0%... 30.0%... 40.0%... 50.0%... 60.0%... 70.0%... 80.0%... 90.0%... 100.0%... done.
+Finished routing state setup.
+
+TRAFFIC
+==================
+Finished generating traffic flow starts.
+
+ACTUAL RUN
+==================
+Starting simulation (total time: 2000000000ns);...
+Simulation ended because flows have all completed their runs.
+Simulation finished (simulated 2.0s in a real-world time of 0.054s).

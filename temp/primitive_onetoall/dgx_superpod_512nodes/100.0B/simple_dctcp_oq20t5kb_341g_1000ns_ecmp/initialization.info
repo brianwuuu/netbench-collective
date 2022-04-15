@@ -1,0 +1,9 @@
+Seed randomly chosen: FALSE
+Seed: 8278897294
+Port: ECN_TAIL_DROP(maxQueueSizeBytes=20000, ecnThresholdKBytes=4000)
+Network device flowlet intermediary: IDENTITY
+Network device: ECMP_SWITCH(numNodes=1200)
+Link: PERFECT_SIMPLE_LINK_DIFF_DELAY_BW(delayNs=1000, networkBandwidthBitPerNs=341.0)
+Transport layer: SIMPLE_DCTCP
+Routing: ECMP
+Flow planner: FROM_FILE_ARRIVAL_AUTO_PLANNER(arrival file name=/Users/bwu/src/SiPAC/temp/primitive_onetoall/dgx_superpod_512nodes/100.0B/flow_arrivals.txt)
